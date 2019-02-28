@@ -1,4 +1,5 @@
 import Router from 'koa-router';
+import mongoose from 'mongoose';
 
 import {
   User,
@@ -17,20 +18,101 @@ router.get('/', async (ctx) => {
     .skip(perPage * (page - 1))
     .limit(parseInt(perPage, 10));
 
+  ctx.status = 200;
   ctx.body = {
     users,
   };
 });
 
-router.get('/:id', async (ctx) => {
-  const user = await User.findOne({
-    _id: ctx.params.id,
-  })
-    .select('-password');
+router.post('/', async (ctx) => {
+  const attributes = ctx.request.body;
 
-  ctx.body = {
-    user,
-  };
+  try {
+    const newUser = new User({ ...attributes }, []);
+    await newUser.save();
+
+    const user = await User.findOne({
+      _id: newUser._id,
+    })
+      .select('-password');
+
+    ctx.status = 201;
+    ctx.body = {
+      user,
+    };
+  } catch (e) {
+    console.log('Error', e);
+    ctx.status = 500;
+  }
+});
+
+router.patch('/:id', async (ctx) => {
+  const attributes = ctx.request.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      ctx.params.id,
+      {
+        ...attributes,
+      },
+      {
+        new: true,
+      },
+    )
+      .select('-password');
+
+    if (user) {
+      ctx.status = 200;
+      ctx.body = {
+        user,
+      };
+    } else {
+      ctx.status = 404;
+    }
+  } catch (error) {
+    if (error.message instanceof mongoose.Error.CastError) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.status = 500;
+  }
+});
+
+router.delete('/:id', async (ctx) => {
+  try {
+    await User.findByIdAndDelete(ctx.params.id);
+    ctx.status = 200;
+  } catch (error) {
+    if (error.message instanceof mongoose.Error.CastError) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.status = 500;
+  }
+});
+
+router.get('/:id', async (ctx) => {
+  try {
+    const user = await User.findOne({
+      _id: ctx.params.id,
+    })
+      .select('-password');
+
+    if (user) {
+      ctx.status = 200;
+      ctx.body = {
+        user,
+      };
+    } else {
+      ctx.status = 404;
+    }
+  } catch (error) {
+    if (error.message instanceof mongoose.Error.CastError) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.status = 500;
+  }
 });
 
 

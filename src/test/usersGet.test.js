@@ -1,4 +1,7 @@
 import chai from 'chai';
+import {
+  ObjectId,
+} from 'mongodb';
 
 import {
   request,
@@ -20,6 +23,7 @@ describe('Users -- test', () => {
     const response = await request
       .get('/api/users');
 
+    expect(response.res.statusCode).to.be.equal(200);
     expect(response.body).to.have.all.keys('users');
     expect(response.body.users).to.be.an('array');
     // lets set 10 items perpage and assume that fixtures are loaded
@@ -36,7 +40,16 @@ describe('Users -- test', () => {
     const singleUserResponse = await request
       .get(`/api/users/${firstUserId}`);
 
+    expect(singleUserResponse.res.statusCode).to.be.equal(200);
+
     expect(singleUserResponse.body).to.have.all.keys('user');
     expect(singleUserResponse.body.user).to.have.all.keys('name', '_id');
+  });
+
+  it('"/api/users/{_id}" should return 404 for non existing user', async () => {
+    const singleUserResponse = await request
+      .get(`/api/users/${ObjectId()}`);
+
+    expect(singleUserResponse.res.statusCode).to.be.equal(404);
   });
 });
