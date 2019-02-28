@@ -3,17 +3,22 @@ import faker from 'faker';
 
 import {
   request,
+  loginUser,
 } from './utils';
 
 const { expect } = chai;
 
 describe('Users -- create', () => {
+  const meta = {};
+  before(loginUser(meta, { name: 'admin', password: 'password' }));
+
   it('POST "/api/users" should create new record', async () => {
     const name = `${faker.name.firstName()} Test`;
     const password = faker.name.firstName();
 
     const response = await request
       .post('/api/users')
+      .set('Authorization', `Bearer ${meta.token}`)
       .send({
         name,
         password,
@@ -32,6 +37,9 @@ describe('Users -- create', () => {
 });
 
 describe('Users -- update', () => {
+  const meta = {};
+  before(loginUser(meta, { name: 'admin', password: 'password' }));
+
   it('PATCH "/api/users/:id" should update user', async () => {
     const usersResponse = await request
       .get('/api/users');
@@ -42,6 +50,7 @@ describe('Users -- update', () => {
 
     const response = await request
       .patch(`/api/users/${secondUser._id}`)
+      .set('Authorization', `Bearer ${meta.token}`)
       .send({
         name: newName,
       });
@@ -57,6 +66,9 @@ describe('Users -- update', () => {
 });
 
 describe('Users -- delete', () => {
+  const meta = {};
+  before(loginUser(meta, { name: 'admin', password: 'password' }));
+
   it('PATCH "/api/users/:id" should update user', async () => {
     const usersResponse = await request
       .get('/api/users');
@@ -65,7 +77,8 @@ describe('Users -- delete', () => {
 
 
     const response = await request
-      .delete(`/api/users/${secondUser._id}`);
+      .delete(`/api/users/${secondUser._id}`)
+      .set('Authorization', `Bearer ${meta.token}`);
 
     expect(response.res.statusCode).to.be.equal(200);
 

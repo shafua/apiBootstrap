@@ -5,6 +5,10 @@ import {
   User,
 } from '../../db';
 
+import {
+  authorize,
+} from '../auth/token';
+
 const perPage = 10;
 
 const router = new Router({
@@ -24,7 +28,7 @@ router.get('/', async (ctx) => {
   };
 });
 
-router.post('/', async (ctx) => {
+router.post('/', authorize(), async (ctx) => {
   const attributes = ctx.request.body;
 
   try {
@@ -46,7 +50,7 @@ router.post('/', async (ctx) => {
   }
 });
 
-router.patch('/:id', async (ctx) => {
+router.patch('/:id', authorize(), async (ctx) => {
   const attributes = ctx.request.body;
 
   try {
@@ -78,7 +82,7 @@ router.patch('/:id', async (ctx) => {
   }
 });
 
-router.delete('/:id', async (ctx) => {
+router.delete('/:id', authorize(), async (ctx) => {
   try {
     await User.findByIdAndDelete(ctx.params.id);
     ctx.status = 200;
