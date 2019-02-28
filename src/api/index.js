@@ -1,6 +1,8 @@
 import Koa from 'koa';
 import Router from 'koa-router';
 
+import usersRoutes from './routes/users';
+
 const app = new Koa();
 
 // app.use(auth(passport));
@@ -14,6 +16,8 @@ router.get('/test', async (ctx) => {
     test: true,
   };
 });
+
+router.use(usersRoutes.routes());
 
 app.use(router.routes());
 

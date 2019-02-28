@@ -23,7 +23,7 @@ describe('Users -- test', () => {
     expect(response.body).to.have.all.keys('users');
     expect(response.body.users).to.be.an('array');
     // lets set 10 items perpage and assume that fixtures are loaded
-    expect(response.body.users.lenght).to.be.equal(10);
+    expect(response.body.users.length).to.be.equal(10);
     expect(response.body.users[0]).to.have.all.keys('name', '_id');
   });
 
@@ -37,6 +37,6 @@ describe('Users -- test', () => {
       .get(`/api/users/${firstUserId}`);
 
     expect(singleUserResponse.body).to.have.all.keys('user');
-    expect(singleUserResponse.body.user).to.have.all.keys('name');
+    expect(singleUserResponse.body.user).to.have.all.keys('name', '_id');
   });
 });
