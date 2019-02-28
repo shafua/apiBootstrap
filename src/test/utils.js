@@ -19,6 +19,7 @@ export function loginUser(meta, { name, password }) {
       .expect(200)
       .end((err, res) => {
         meta.token = res.body.jwtToken;
+        meta.statusCode = res.statusCode;
         return done();
       });
   };

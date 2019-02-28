@@ -10,7 +10,9 @@ const { expect } = chai;
 
 describe('Users -- create', () => {
   const meta = {};
+  const metaWrongPass = {};
   before(loginUser(meta, { name: 'admin', password: 'password' }));
+  before(loginUser(metaWrongPass, { name: 'admin', password: 'wrongPassword' }));
 
   it('POST "/api/users" should create new record', async () => {
     const name = `${faker.name.firstName()} Test`;
@@ -33,6 +35,21 @@ describe('Users -- create', () => {
     expect(response.body.user).to.not.have.any.keys('password');
 
     expect(response.body.user.name).to.be.equal(name);
+  });
+
+  it('POST "/api/users" should not allow to create with wrong password', async () => {
+    const name = `${faker.name.firstName()} Test`;
+    const password = faker.name.firstName();
+
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', `Bearer ${metaWrongPass.token}`)
+      .send({
+        name,
+        password,
+      });
+
+    expect(response.res.statusCode).to.be.equal(401);
   });
 });
 

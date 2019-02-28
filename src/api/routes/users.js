@@ -1,6 +1,8 @@
 import Router from 'koa-router';
 import mongoose from 'mongoose';
 
+import bcrypt from 'bcrypt';
+
 import {
   User,
 } from '../../db';
@@ -32,7 +34,13 @@ router.post('/', authorize(), async (ctx) => {
   const attributes = ctx.request.body;
 
   try {
-    const newUser = new User({ ...attributes }, []);
+    const newUser = new User(
+      {
+        ...attributes,
+        password: bcrypt.hashSync(attributes.password, 10),
+      },
+      [],
+    );
     await newUser.save();
 
     const user = await User.findOne({

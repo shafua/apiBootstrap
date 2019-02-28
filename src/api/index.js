@@ -2,6 +2,7 @@ import Koa from 'koa';
 import passport from 'koa-passport';
 import Router from 'koa-router';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 import auth from './auth';
 
@@ -20,12 +21,24 @@ const router = new Router({
 });
 
 router.post('/auth/token', async (ctx) => {
-  const { name } = ctx.request.body;
+  const {
+    name,
+    password,
+  } = ctx.request.body;
 
   const user = await User.findOne({
     name,
   });
+  const savedPassword = user.password;
   if (user) {
+    if (!(savedPassword && bcrypt.compareSync(password, savedPassword))) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        errorMessage: 'Wrong username or password',
+      };
+      return;
+    }
     const jwtToken = jwt.sign(
       {
         userId: user._id,
@@ -38,10 +51,10 @@ router.post('/auth/token', async (ctx) => {
     };
     return;
   }
-  ctx.status = 500;
+  ctx.status = 400;
   ctx.body = {
     success: false,
-    errorMessage: 'Something wrong',
+    errorMessage: 'Wrong username or password',
   };
 });
 
