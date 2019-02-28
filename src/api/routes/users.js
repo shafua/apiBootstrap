@@ -12,7 +12,7 @@ const router = new Router({
 });
 
 router.get('/', async (ctx) => {
-  const page = 1;
+  const page = ctx.query?.page || 1;
   const users = await User.find()
     .select('-password')
     .skip(perPage * (page - 1))
