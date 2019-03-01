@@ -2,7 +2,7 @@ import passport from 'koa-passport';
 
 export function authorize() {
   return (
-    req,
+    ctx,
     next,
   ) => passport.authenticate(
     'jwt',
@@ -11,18 +11,18 @@ export function authorize() {
     },
     (error, user) => {
       if (error || !user) {
-        req.status = 401;
+        ctx.status = 401;
         if (error && error.message) {
-          req.body = {
+          ctx.body = {
             error: error.message,
           };
         }
         return;
       }
       if (user) {
-        req.state.user = user;
+        ctx.state.user = user;
       }
       return next(); // eslint-disable-line consistent-return
     },
-  )(req, next);
+  )(ctx, next);
 }
