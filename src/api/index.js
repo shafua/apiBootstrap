@@ -60,6 +60,25 @@ router.post('/auth/token', async (ctx) => {
 
 router.use(usersRoutes.routes());
 
+app.use(async (ctx, next) => {
+  try {
+    await next();
+    if (!ctx.body && (!ctx.status || ctx.status >= 400)) throw new Error('Something wrong');
+    ctx.body = {
+      status: ctx.status,
+      result: ctx.body,
+      error: false,
+    };
+  } catch (e) {
+    ctx.body = {
+      status: ctx.status || 500,
+      result: ctx.body,
+      error: true,
+      message: e.message,
+    };
+  }
+});
+
 app.use(router.routes());
 
 export default app;
